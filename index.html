@@ -75,6 +75,7 @@
                         <h1 class="text-xl font-black text-amber-950 tracking-wider">ごせんふ ドレミマスター</h1>
                     </div>
                     <div class="flex items-center gap-2">
+                        <!-- 結果画面になったら表示されるホームボタン -->
                         <button id="headerTitleBtn" onclick="showTitle()" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-full border-2 border-slate-300 text-xs flex items-center gap-1 transition btn-press">
                             🏠 タイトルへ
                         </button>
@@ -90,15 +91,24 @@
                 <div class="w-full h-full relative flex flex-col">
 
                     <!-- 1. タイトル画面 -->
-                    <div id="screenTitle" class="absolute inset-0 bg-white rounded-2xl p-4 shadow-xl border-4 border-amber-300 flex flex-col items-center justify-center space-y-5 z-10">
-                        <div class="text-center space-y-2">
-                            <h2 class="text-4xl font-black text-amber-600 tracking-wide mt-2">
+                    <div id="screenTitle" class="absolute inset-0 bg-white rounded-2xl p-4 shadow-xl border-4 border-amber-300 flex flex-col items-center justify-center space-y-4 z-10">
+                        <div class="text-center space-y-1">
+                            <h2 class="text-3xl font-black text-amber-600 tracking-wide mt-1">
                                 <span class="text-pink-500">ドレミ</span>をあてよう！
                             </h2>
                         </div>
-                        <div class="w-full max-w-sm pt-2">
-                            <div class="text-slate-600 font-bold text-xs text-center mb-2">スタートする レベル をえらんでね</div>
+                        <div class="w-full max-w-sm pt-1">
+                            <!-- 記号の選択 -->
+                            <div class="text-slate-600 font-bold text-xs text-center mb-1.5">きごう をえらんでね</div>
+                            <div class="flex justify-center gap-3 mb-4">
+                                <button id="btnClef_treble" onclick="selectClef('treble')" class="flex-1 py-2 rounded-xl font-black text-sm border-2 transition bg-amber-400 border-amber-600 text-amber-950 shadow-md scale-105 btn-press">🎼 ト音記号</button>
+                                <button id="btnClef_bass" onclick="selectClef('bass')" class="flex-1 py-2 rounded-xl font-black text-sm border-2 transition bg-white border-slate-200 text-slate-600 hover:border-amber-300 hover:bg-amber-50 btn-press">𝄢 ヘ音記号</button>
+                            </div>
+
+                            <!-- レベルの選択 -->
+                            <div class="text-slate-600 font-bold text-xs text-center mb-1.5">スタートする レベル をえらんでね</div>
                             <div class="grid grid-cols-5 gap-1.5 mb-4" id="levelSelectContainer"></div>
+                            
                             <button onclick="startGame(false)" class="w-full py-3 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-black text-xl rounded-xl shadow-[0_4px_0_0_#be123c] btn-press">
                                 ゲームスタート！ ✨
                             </button>
@@ -159,39 +169,12 @@
 
                             <div class="flex-1 bg-white border-2 border-slate-300 rounded-xl p-2 flex flex-col items-center justify-center shadow-inner min-w-0 w-1/2 relative">
                                 <div class="w-full h-[40%] flex flex-col justify-center">
-                                    <div class="w-full flex-grow flex justify-between bg-white border border-slate-800 divide-x divide-slate-800 relative overflow-hidden">
-                                        <!-- 17個の白鍵 (divide-x で均一な線を引く) -->
-                                        <div id="key_A3" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
-                                        <div id="key_B3" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
-                                        <div id="key_C4" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
-                                        <div id="key_D4" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
-                                        <div id="key_E4" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
-                                        <div id="key_F4" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
-                                        <div id="key_G4" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
-                                        <div id="key_A4" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
-                                        <div id="key_B4" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
-                                        <div id="key_C5" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
-                                        <div id="key_D5" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
-                                        <div id="key_E5" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
-                                        <div id="key_F5" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
-                                        <div id="key_G5" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
-                                        <div id="key_A5" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
-                                        <div id="key_B5" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
-                                        <div id="key_C6" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
-                                        
-                                        <!-- 黒鍵 -->
-                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*1 - 1.5%); width: 3%;"></div>
-                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*3 - 1.5%); width: 3%;"></div>
-                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*4 - 1.5%); width: 3%;"></div>
-                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*6 - 1.5%); width: 3%;"></div>
-                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*7 - 1.5%); width: 3%;"></div>
-                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*8 - 1.5%); width: 3%;"></div>
-                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*10 - 1.5%); width: 3%;"></div>
-                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*11 - 1.5%); width: 3%;"></div>
-                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*13 - 1.5%); width: 3%;"></div>
-                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*14 - 1.5%); width: 3%;"></div>
-                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*15 - 1.5%); width: 3%;"></div>
-                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc(100% - 1.5%); width: 3%;"></div>
+                                    <!-- 鍵盤描画コンテナ (JavaScriptで動的生成) -->
+                                    <div class="w-full flex-grow relative overflow-hidden border border-slate-800 bg-white">
+                                        <!-- 白鍵用レイヤー -->
+                                        <div id="whiteKeysContainer" class="absolute inset-0 flex justify-between divide-x divide-slate-800"></div>
+                                        <!-- 黒鍵用レイヤー -->
+                                        <div id="blackKeysContainer" class="absolute inset-0 pointer-events-none"></div>
                                     </div>
                                 </div>
                             </div>
@@ -199,25 +182,25 @@
                     </div>
 
                     <!-- 3. 結果画面 -->
-                    <div id="screenResult" class="hidden absolute inset-0 bg-white rounded-2xl p-4 shadow-xl border-4 border-amber-300 flex flex-col items-center justify-center space-y-3 z-10">
+                    <div id="screenResult" class="hidden absolute inset-0 bg-white rounded-2xl p-3 shadow-xl border-4 border-amber-300 flex flex-col items-center justify-center space-y-3 z-10">
                         <div class="text-center space-y-0.5">
                             <div id="resultEmoji" class="text-4xl animate-bounce-short">🎉</div>
                             <h2 id="resultTitle" class="text-2xl font-black text-amber-600">100てん まんてん！</h2>
                             <p id="resultSub" class="text-xs text-slate-600 font-bold">すごい！ぜんぶ せいかいできたね！</p>
                         </div>
                         
-                        <div class="bg-amber-50 rounded-2xl py-2 px-4 border-2 border-amber-200 w-full max-w-sm space-y-1">
+                        <div class="bg-amber-50 rounded-2xl py-1.5 px-4 border-2 border-amber-200 w-full max-w-sm space-y-1">
                             <div class="flex justify-between items-center border-b border-amber-200 pb-1">
                                 <span class="font-bold text-xs text-slate-600">挑戦したレベル</span>
                                 <span id="resultLevelText" class="font-black text-pink-600 text-sm">レベル 1</span>
                             </div>
-                            <div class="flex justify-between items-center pt-1">
+                            <div class="flex justify-between items-center pt-0.5">
                                 <span class="font-bold text-slate-700 text-sm">ごうけい</span>
                                 <span id="finalScoreText" class="font-black text-amber-600 text-xl">100 点</span>
                             </div>
                         </div>
                         
-                        <div class="space-y-2.5 w-full max-w-sm flex flex-col items-center">
+                        <div class="space-y-2 w-full max-w-sm flex flex-col items-center">
                             <!-- 隠しモード：スペシャルモードへ行くボタン -->
                             <button id="specialModeBtn" onclick="startGame(true)" class="hidden w-full py-2 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-black text-base rounded-2xl shadow-[0_4px_0_0_#4338ca] btn-press">
                                 🔥 30びょう タイムアタックに ちょうせん！
@@ -228,8 +211,8 @@
                             <button onclick="startGame(false)" class="w-full py-2 bg-amber-400 hover:bg-amber-500 text-amber-950 font-black text-base rounded-2xl shadow-[0_4px_0_0_#b45309] btn-press">
                                 もう一度 このレベルで あそぶ 🔄
                             </button>
-                            <!-- 下部のはみ出しを防ぐための透明な1行 -->
-                            <div class="h-1 w-full opacity-0"></div>
+                            <!-- 余白調整用 -->
+                            <div class="h-0.5 w-full opacity-0"></div>
                         </div>
                     </div>
                 </div>
@@ -248,11 +231,13 @@
             constructor() {
                 this.ctx = null;
                 this.isMuted = false;
+                // 全音域をカバーする周波数定義 (C2〜C6)
                 this.noteFreqs = {
-                    '低ラ': 220.00, '低シ': 246.94,
-                    'ド': 261.63, 'レ': 293.66, 'ミ': 329.63, 'ファ': 349.23, 'ソ': 392.00, 'ラ': 440.00, 'シ': 493.88,
-                    '高ド': 523.25, '高レ': 587.33, '高ミ': 659.25, '高ファ': 698.46, '高ソ': 783.99, '高ラ': 880.00, '高シ': 987.77,
-                    '最高ド': 1046.50
+                    'C2': 65.41, 'D2': 73.42, 'E2': 82.41, 'F2': 87.31, 'G2': 98.00, 'A2': 110.00, 'B2': 123.47,
+                    'C3': 130.81, 'D3': 146.83, 'E3': 164.81, 'F3': 174.61, 'G3': 196.00, 'A3': 220.00, 'B3': 246.94,
+                    'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
+                    'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'G5': 783.99, 'A5': 880.00, 'B5': 987.77,
+                    'C6': 1046.50
                 };
             }
             init() {
@@ -260,20 +245,19 @@
                 if (this.ctx.state === 'suspended') this.ctx.resume();
             }
             playDummySound() {
-                // ブラウザの音声再生制限を解除するための無音再生
                 this.init();
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
-                gain.gain.value = 0; // 完全無音
+                gain.gain.value = 0; 
                 osc.connect(gain);
                 gain.connect(this.ctx.destination);
                 osc.start();
                 osc.stop(this.ctx.currentTime + 0.01);
             }
-            playNote(noteName) {
+            playNote(pitchName) {
                 if (this.isMuted) return;
                 this.init();
-                const freq = this.noteFreqs[noteName] || 440;
+                const freq = this.noteFreqs[pitchName] || 440;
                 const now = this.ctx.currentTime;
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
@@ -354,24 +338,60 @@
             5: { time: 1, label: '1びょう' }
         };
 
-        const NOTE_LIST = [
-            { name: 'ラ', pitchName: '低ラ', vexKey: 'a/3', stemUp: true, keyId: 'key_A3' },
-            { name: 'シ', pitchName: '低シ', vexKey: 'b/3', stemUp: true, keyId: 'key_B3' },
-            { name: 'ド', pitchName: 'ド', vexKey: 'c/4', stemUp: true, keyId: 'key_C4' },
-            { name: 'レ', pitchName: 'レ', vexKey: 'd/4', stemUp: true, keyId: 'key_D4' },
-            { name: 'ミ', pitchName: 'ミ', vexKey: 'e/4', stemUp: true, keyId: 'key_E4' },
-            { name: 'ファ', pitchName: 'ファ', vexKey: 'f/4', stemUp: true, keyId: 'key_F4' },
-            { name: 'ソ', pitchName: 'ソ', vexKey: 'g/4', stemUp: true, keyId: 'key_G4' },
-            { name: 'ラ', pitchName: 'ラ', vexKey: 'a/4', stemUp: true, keyId: 'key_A4' },
-            { name: 'シ', pitchName: 'シ', vexKey: 'b/4', stemUp: false, keyId: 'key_B4' },
-            { name: 'ド', pitchName: '高ド', vexKey: 'c/5', stemUp: false, keyId: 'key_C5' },
-            { name: 'レ', pitchName: '高レ', vexKey: 'd/5', stemUp: false, keyId: 'key_D5' },
-            { name: 'ミ', pitchName: '高ミ', vexKey: 'e/5', stemUp: false, keyId: 'key_E5' },
-            { name: 'ファ', pitchName: '高ファ', vexKey: 'f/5', stemUp: false, keyId: 'key_F5' },
-            { name: 'ソ', pitchName: '高ソ', vexKey: 'g/5', stemUp: false, keyId: 'key_G5' },
-            { name: 'ラ', pitchName: '高ラ', vexKey: 'a/5', stemUp: false, keyId: 'key_A5' },
-            { name: 'シ', pitchName: '高シ', vexKey: 'b/5', stemUp: false, keyId: 'key_B5' },
-            { name: 'ド', pitchName: '最高ド', vexKey: 'c/6', stemUp: false, keyId: 'key_C6' }
+        // 鍵盤描画のためのデータ (白鍵のリストと、右側に黒鍵がある白鍵のインデックス)
+        const CLEF_CONFIG = {
+            'treble': {
+                whiteKeys: ['A3', 'B3', 'C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5', 'F5', 'G5', 'A5', 'B5', 'C6'],
+                blackKeys: [1, 3, 4, 6, 7, 8, 10, 11, 13, 14, 15], // 1-based (A, C, D, F, G, A... の右)
+                hasRightHalfBlackKey: true // C6の右(C#)を見切れさせる
+            },
+            'bass': {
+                whiteKeys: ['C2', 'D2', 'E2', 'F2', 'G2', 'A2', 'B2', 'C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3', 'C4', 'D4', 'E4'],
+                blackKeys: [1, 2, 4, 5, 6, 8, 9, 11, 12, 13, 15, 16], // 1-based (C, D, F, G, A... の右)
+                hasRightHalfBlackKey: false // E4の右はFなので黒鍵なし
+            }
+        };
+
+        // ト音記号の問題リスト (A3〜C6)
+        const NOTE_LIST_TREBLE = [
+            { name: 'ラ', pitchName: 'A3', vexKey: 'a/3', stemUp: true, keyId: 'key_A3' },
+            { name: 'シ', pitchName: 'B3', vexKey: 'b/3', stemUp: true, keyId: 'key_B3' },
+            { name: 'ド', pitchName: 'C4', vexKey: 'c/4', stemUp: true, keyId: 'key_C4' },
+            { name: 'レ', pitchName: 'D4', vexKey: 'd/4', stemUp: true, keyId: 'key_D4' },
+            { name: 'ミ', pitchName: 'E4', vexKey: 'e/4', stemUp: true, keyId: 'key_E4' },
+            { name: 'ファ', pitchName: 'F4', vexKey: 'f/4', stemUp: true, keyId: 'key_F4' },
+            { name: 'ソ', pitchName: 'G4', vexKey: 'g/4', stemUp: true, keyId: 'key_G4' },
+            { name: 'ラ', pitchName: 'A4', vexKey: 'a/4', stemUp: true, keyId: 'key_A4' },
+            { name: 'シ', pitchName: 'B4', vexKey: 'b/4', stemUp: false, keyId: 'key_B4' },
+            { name: 'ド', pitchName: 'C5', vexKey: 'c/5', stemUp: false, keyId: 'key_C5' },
+            { name: 'レ', pitchName: 'D5', vexKey: 'd/5', stemUp: false, keyId: 'key_D5' },
+            { name: 'ミ', pitchName: 'E5', vexKey: 'e/5', stemUp: false, keyId: 'key_E5' },
+            { name: 'ファ', pitchName: 'F5', vexKey: 'f/5', stemUp: false, keyId: 'key_F5' },
+            { name: 'ソ', pitchName: 'G5', vexKey: 'g/5', stemUp: false, keyId: 'key_G5' },
+            { name: 'ラ', pitchName: 'A5', vexKey: 'a/5', stemUp: false, keyId: 'key_A5' },
+            { name: 'シ', pitchName: 'B5', vexKey: 'b/5', stemUp: false, keyId: 'key_B5' },
+            { name: 'ド', pitchName: 'C6', vexKey: 'c/6', stemUp: false, keyId: 'key_C6' }
+        ];
+
+        // ヘ音記号の問題リスト (C2〜E4)
+        const NOTE_LIST_BASS = [
+            { name: 'ド', pitchName: 'C2', vexKey: 'c/2', stemUp: true, keyId: 'key_C2' },
+            { name: 'レ', pitchName: 'D2', vexKey: 'd/2', stemUp: true, keyId: 'key_D2' },
+            { name: 'ミ', pitchName: 'E2', vexKey: 'e/2', stemUp: true, keyId: 'key_E2' },
+            { name: 'ファ', pitchName: 'F2', vexKey: 'f/2', stemUp: true, keyId: 'key_F2' },
+            { name: 'ソ', pitchName: 'G2', vexKey: 'g/2', stemUp: true, keyId: 'key_G2' },
+            { name: 'ラ', pitchName: 'A2', vexKey: 'a/2', stemUp: true, keyId: 'key_A2' },
+            { name: 'シ', pitchName: 'B2', vexKey: 'b/2', stemUp: true, keyId: 'key_B2' },
+            { name: 'ド', pitchName: 'C3', vexKey: 'c/3', stemUp: true, keyId: 'key_C3' },
+            { name: 'レ', pitchName: 'D3', vexKey: 'd/3', stemUp: false, keyId: 'key_D3' },
+            { name: 'ミ', pitchName: 'E3', vexKey: 'e/3', stemUp: false, keyId: 'key_E3' },
+            { name: 'ファ', pitchName: 'F3', vexKey: 'f/3', stemUp: false, keyId: 'key_F3' },
+            { name: 'ソ', pitchName: 'G3', vexKey: 'g/3', stemUp: false, keyId: 'key_G3' },
+            { name: 'ラ', pitchName: 'A3', vexKey: 'a/3', stemUp: false, keyId: 'key_A3' },
+            { name: 'シ', pitchName: 'B3', vexKey: 'b/3', stemUp: false, keyId: 'key_B3' },
+            { name: 'ド', pitchName: 'C4', vexKey: 'c/4', stemUp: false, keyId: 'key_C4' },
+            { name: 'レ', pitchName: 'D4', vexKey: 'd/4', stemUp: false, keyId: 'key_D4' },
+            { name: 'ミ', pitchName: 'E4', vexKey: 'e/4', stemUp: false, keyId: 'key_E4' }
         ];
 
         let currentLevel = 1;
@@ -382,6 +402,7 @@
         let timerInterval = null;
         let questionSequence = [];
         let isSpecialMode = false;
+        let currentClef = 'treble'; // デフォルトはト音記号
 
         function adjustScale() {
             const wrapper = document.getElementById('gameWrapper');
@@ -403,6 +424,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             adjustScale();
             buildLevelSelectButtons();
+            selectClef('treble'); // 初期記号選択
             showTitle();
         });
 
@@ -410,6 +432,23 @@
             sound.isMuted = !sound.isMuted;
             document.getElementById('soundIcon').textContent = sound.isMuted ? '🔇' : '🔊';
             document.getElementById('soundLabel').textContent = sound.isMuted ? 'おと OFF' : 'おと ON';
+        }
+
+        function selectClef(clef) {
+            currentClef = clef;
+            const btnTreble = document.getElementById('btnClef_treble');
+            const btnBass = document.getElementById('btnClef_bass');
+            
+            const activeClass = 'flex-1 py-2 rounded-xl font-black text-sm border-2 transition bg-amber-400 border-amber-600 text-amber-950 shadow-md scale-105 btn-press';
+            const inactiveClass = 'flex-1 py-2 rounded-xl font-black text-sm border-2 transition bg-white border-slate-200 text-slate-600 hover:border-amber-300 hover:bg-amber-50 btn-press';
+            
+            if (clef === 'treble') {
+                btnTreble.className = activeClass;
+                btnBass.className = inactiveClass;
+            } else {
+                btnBass.className = activeClass;
+                btnTreble.className = inactiveClass;
+            }
         }
 
         function buildLevelSelectButtons() {
@@ -430,9 +469,9 @@
             for (let i = 1; i <= 5; i++) {
                 const btn = document.getElementById(`lvlBtn_${i}`);
                 if (i === lvl) {
-                    btn.className = 'py-2 px-1 rounded-2xl font-black text-sm border-2 transition flex flex-col items-center justify-center bg-amber-400 border-amber-600 text-amber-950 shadow-md scale-105';
+                    btn.className = 'py-2 px-1 rounded-2xl font-black text-sm border-2 transition flex flex-col items-center justify-center bg-amber-400 border-amber-600 text-amber-950 shadow-md scale-105 btn-press';
                 } else {
-                    btn.className = 'py-2 px-1 rounded-2xl font-black text-sm border-2 transition flex flex-col items-center justify-center bg-white border-slate-200 text-slate-600 hover:border-amber-300 hover:bg-amber-50';
+                    btn.className = 'py-2 px-1 rounded-2xl font-black text-sm border-2 transition flex flex-col items-center justify-center bg-white border-slate-200 text-slate-600 hover:border-amber-300 hover:bg-amber-50 btn-press';
                 }
             }
         }
@@ -443,6 +482,49 @@
             document.getElementById('screenGame').classList.add('hidden');
             document.getElementById('screenResult').classList.add('hidden');
             document.getElementById('headerTitleBtn').classList.add('hidden');
+        }
+
+        function renderKeyboard(clef) {
+            const whiteContainer = document.getElementById('whiteKeysContainer');
+            const blackContainer = document.getElementById('blackKeysContainer');
+            whiteContainer.innerHTML = '';
+            blackContainer.innerHTML = '';
+            
+            const config = CLEF_CONFIG[clef];
+            const numKeys = config.whiteKeys.length;
+            
+            // 白鍵の描画
+            config.whiteKeys.forEach((keyIdStr) => {
+                const div = document.createElement('div');
+                div.id = `key_${keyIdStr}`;
+                div.className = 'flex-1 bg-white flex items-end justify-center transition-colors';
+                
+                // ピアノの基準となる「中央のド（C4）」にのみ目印をつける
+                if (keyIdStr === 'C4') {
+                    const dot = document.createElement('div');
+                    dot.className = 'w-1.5 h-1.5 bg-slate-400 rounded-full mb-2';
+                    div.appendChild(dot);
+                }
+                whiteContainer.appendChild(div);
+            });
+            
+            // 黒鍵の描画
+            config.blackKeys.forEach(whiteIndex => {
+                const div = document.createElement('div');
+                div.className = 'absolute top-0 h-[55%] bg-slate-900 shadow-sm rounded-b-sm';
+                div.style.left = `calc((100% / ${numKeys}) * ${whiteIndex} - 1.5%)`;
+                div.style.width = '3%';
+                blackContainer.appendChild(div);
+            });
+            
+            // 右端の半分の黒鍵（必要な場合）
+            if (config.hasRightHalfBlackKey) {
+                const div = document.createElement('div');
+                div.className = 'absolute top-0 h-[55%] bg-slate-900 shadow-sm rounded-bl-sm';
+                div.style.left = `calc(100% - 1.5%)`;
+                div.style.width = '3%';
+                blackContainer.appendChild(div);
+            }
         }
 
         function startGame(startSpecial = false) {
@@ -456,6 +538,11 @@
             document.getElementById('screenGame').classList.remove('hidden');
             document.getElementById('headerTitleBtn').classList.add('hidden'); // ゲーム中は非表示
             
+            // 鍵盤を描画
+            renderKeyboard(currentClef);
+            
+            const activeNoteList = currentClef === 'treble' ? NOTE_LIST_TREBLE : NOTE_LIST_BASS;
+            
             const badge = document.getElementById('currentLevelBadge');
             const qIndexContainer = document.getElementById('qIndexContainer');
             const scoreLabel = document.getElementById('scoreLabel');
@@ -467,6 +554,10 @@
                 qIndexContainer.classList.add('hidden');
                 scoreLabel.textContent = 'せいかい';
                 scoreUnit.textContent = '問';
+                
+                // スペシャルモード用に全音符をシャッフルした「山札」を作成
+                questionSequence = [...activeNoteList].sort(() => Math.random() - 0.5);
+
                 startSpecialTimer(); // スペシャル用の30秒タイマー開始
             } else {
                 badge.textContent = `レベル ${currentLevel}`;
@@ -475,8 +566,8 @@
                 scoreLabel.textContent = 'てんすう';
                 scoreUnit.textContent = '点';
                 
-                // 17種類からランダムに10個を重複なしで選ぶ
-                const shuffledNotes = [...NOTE_LIST].sort(() => Math.random() - 0.5);
+                // 選ばれた記号のリストから、ランダムに10個を重複なしで選ぶ
+                const shuffledNotes = [...activeNoteList].sort(() => Math.random() - 0.5);
                 questionSequence = shuffledNotes.slice(0, 10);
             }
 
@@ -497,11 +588,11 @@
             const context = renderer.getContext();
 
             const stave = new VF.Stave(5, 15, 110);
-            stave.addClef("treble");
+            stave.addClef(currentClef); // ト音記号またはヘ音記号を描画
             stave.setContext(context).draw();
 
             const staveNote = new VF.StaveNote({
-                clef: "treble",
+                clef: currentClef,
                 keys: [note.vexKey],
                 duration: "q",
                 stem_direction: note.stemUp ? 1 : -1
@@ -531,8 +622,14 @@
                 document.getElementById('qIndexText').textContent = questionIndex;
                 currentNote = questionSequence[questionIndex - 1];
             } else {
-                // スペシャルモード：完全にランダムな音符を出し続ける
-                currentNote = NOTE_LIST[Math.floor(Math.random() * NOTE_LIST.length)];
+                // スペシャルモード：山札から順番に引き、無くなったら新しくシャッフルし直す
+                if (questionIndex >= questionSequence.length) {
+                    const activeNoteList = currentClef === 'treble' ? NOTE_LIST_TREBLE : NOTE_LIST_BASS;
+                    questionSequence = [...activeNoteList].sort(() => Math.random() - 0.5);
+                    questionIndex = 0;
+                }
+                currentNote = questionSequence[questionIndex];
+                questionIndex++;
             }
 
             document.getElementById('scoreText').textContent = score;
