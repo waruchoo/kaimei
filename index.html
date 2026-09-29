@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" class="w-full h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,7 +33,7 @@
 
         /* 正解時の鍵盤ハイライト */
         .key-highlight {
-            background-color: #fef08a !important; /* bg-yellow-200 */
+            background-color: #fef08a !important;
             box-shadow: 0 0 15px rgba(253, 224, 71, 0.8) inset;
             transition: background-color 0.1s ease;
         }
@@ -51,7 +51,7 @@
             transition: opacity 0.3s ease-in-out;
         }
 
-        /* 五線譜SVGのレスポンシブ・コンテナフィット対応 */
+        /* 五線譜SVGのレスポンシブ対応 */
         #staffContainer svg {
             width: 100%;
             height: 100%;
@@ -60,193 +60,188 @@
         }
     </style>
 </head>
-<body class="bg-amber-50 text-slate-800 h-screen w-screen flex flex-col overflow-hidden selection:bg-pink-200">
+<body class="bg-slate-200 text-slate-800 w-full h-[100dvh] flex flex-col m-0 p-0 overflow-hidden selection:bg-pink-200">
 
-    <!-- ヘッダーバー -->
-    <header class="bg-amber-400 border-b-4 border-amber-500 py-2 sm:py-3 px-4 shadow-md z-20 shrink-0">
-        <div class="max-w-5xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <span class="text-2xl sm:text-3xl">🎼</span>
-                <h1 class="text-lg sm:text-2xl font-black text-amber-950 tracking-wider">ごせんふ ドレミマスター</h1>
-            </div>
-            <button onclick="toggleMute()" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold px-3 py-1.5 rounded-full border-2 border-amber-500 text-sm flex items-center gap-1 transition">
-                <span id="soundIcon">🔊</span>
-                <span id="soundLabel">おと ON</span>
-            </button>
-        </div>
-    </header>
-
-    <!-- メインコンテンツ（下部15%の余白を確保し、中央に16:9コンテナを配置） -->
-    <main class="flex-grow flex items-center justify-center p-2 sm:p-4 pb-[15vh] w-full h-full relative box-border">
-        <!-- 画面の縦幅に合わせて16:9を維持するスマートコンテナ -->
-        <div class="w-full aspect-video relative flex flex-col mx-auto" style="max-width: min(100%, calc((100vh - 15vh - 5rem) * 16/9));">
-
-            <!-- 1. タイトル画面 -->
-            <div id="screenTitle" class="absolute inset-0 bg-white rounded-3xl p-4 sm:p-6 shadow-xl border-4 border-amber-300 flex flex-col items-center justify-center space-y-4 sm:space-y-6 z-10">
-                <div class="text-center space-y-2">
-                    <span class="px-3 py-1 bg-pink-100 text-pink-600 font-bold rounded-full text-xs sm:text-sm">しょうがくせい向け 音楽ゲーム</span>
-                    <h2 class="text-2xl sm:text-4xl lg:text-5xl font-black text-amber-600 tracking-wide mt-2">
-                        おんぷをのぞいて<br><span class="text-pink-500">ドレミ</span>をあてよう！
-                    </h2>
-                </div>
-                <div class="bg-amber-50 rounded-2xl p-4 border-2 border-dashed border-amber-300 w-full max-w-lg text-slate-700 text-sm sm:text-base">
-                    <p class="font-bold text-amber-800">🎮 あそびかた：</p>
-                    <ul class="list-disc pl-5 mt-1 space-y-1">
-                        <li>五線譜（ごせんふ）にでてくる音符の「なまえ」をえらぼう！</li>
-                        <li>ぜんぶで <b>10もん</b>。下のラから上のドまででるよ。</li>
-                        <li>レベルがあがると、おんぷがすぐに消えちゃうよ！</li>
-                    </ul>
-                </div>
-                <div class="w-full max-w-lg pt-2">
-                    <div class="text-slate-600 font-bold text-sm text-center mb-2">スタートする レベル をえらんでね</div>
-                    <div class="grid grid-cols-5 gap-2 mb-4" id="levelSelectContainer"></div>
-                    <button onclick="startGame()" class="w-full py-3 sm:py-4 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-black text-xl sm:text-2xl rounded-2xl shadow-[0_6px_0_0_#be123c] btn-press">
-                        ゲームスタート！ ✨
-                    </button>
-                </div>
-            </div>
-
-            <!-- 2. ゲームプレイ画面 -->
-            <div id="screenGame" class="hidden absolute inset-0 bg-white rounded-3xl p-3 shadow-xl border-4 border-amber-300 flex flex-col gap-3">
-                
-                <!-- 上部ステータスバー -->
-                <div class="flex justify-between items-center bg-amber-100/70 p-2 sm:p-3 rounded-2xl border-2 border-amber-200 shrink-0">
+    <!-- 全体を囲むラッパー（スケール計算用） -->
+    <div id="gameWrapper" class="w-full h-full flex items-center justify-center overflow-hidden">
+        
+        <!-- ゲームの論理サイズを固定（640x480） -->
+        <div id="gameApp" class="w-[640px] h-[480px] bg-amber-50 relative flex flex-col shadow-[0_0_40px_rgba(0,0,0,0.15)] origin-center overflow-hidden rounded-2xl">
+            
+            <header class="bg-amber-400 border-b-4 border-amber-500 py-2 px-4 shadow-md z-20 shrink-0">
+                <div class="w-full flex justify-between items-center">
                     <div class="flex items-center gap-2">
-                        <span id="currentLevelBadge" class="bg-pink-500 text-white font-black px-3 py-1 rounded-xl text-sm shadow">レベル 1</span>
+                        <span class="text-2xl">🎼</span>
+                        <h1 class="text-xl font-black text-amber-950 tracking-wider">ごせんふ ドレミマスター</h1>
                     </div>
-                    <div class="flex-grow mx-4 h-3 bg-white rounded-full overflow-hidden border border-amber-200 max-w-sm">
-                        <div id="timerProgressBar" class="bg-emerald-400 h-full w-full"></div>
-                    </div>
-                    <div class="flex items-center gap-4 text-right">
-                        <div>
-                            <span class="text-[10px] sm:text-xs text-slate-500 font-bold block leading-none">もんだい</span>
-                            <span class="text-sm sm:text-lg font-black text-slate-800"><span id="qIndexText" class="text-pink-600 text-xl sm:text-2xl">1</span>/10</span>
-                        </div>
-                        <div>
-                            <span class="text-[10px] sm:text-xs text-slate-500 font-bold block leading-none">てんすう</span>
-                            <span class="text-sm sm:text-lg font-black text-amber-600"><span id="scoreText" class="text-xl sm:text-2xl">0</span>点</span>
-                        </div>
+                    <div class="flex items-center gap-2">
+                        <button id="headerTitleBtn" onclick="showTitle()" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-full border-2 border-slate-300 text-xs flex items-center gap-1 transition btn-press">
+                            🏠 タイトルへ
+                        </button>
+                        <button onclick="toggleMute()" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold px-3 py-1.5 rounded-full border-2 border-amber-500 text-xs flex items-center gap-1 transition btn-press">
+                            <span id="soundIcon">🔊</span>
+                            <span id="soundLabel">おと ON</span>
+                        </button>
                     </div>
                 </div>
+            </header>
 
-                <!-- メインプレイエリア（左右分割） -->
-                <div class="flex-grow flex flex-row gap-3 min-h-0">
-                    <!-- 左ペイン：五線譜とボタン -->
-                    <div class="flex-1 flex flex-col gap-3 min-w-0 w-1/2">
+            <main class="flex-grow flex items-center justify-center p-3 w-full h-full relative box-border pb-8">
+                <div class="w-full h-full relative flex flex-col">
+
+                    <!-- 1. タイトル画面 -->
+                    <div id="screenTitle" class="absolute inset-0 bg-white rounded-2xl p-4 shadow-xl border-4 border-amber-300 flex flex-col items-center justify-center space-y-5 z-10">
+                        <div class="text-center space-y-2">
+                            <h2 class="text-4xl font-black text-amber-600 tracking-wide mt-2">
+                                <span class="text-pink-500">ドレミ</span>をあてよう！
+                            </h2>
+                        </div>
+                        <div class="w-full max-w-sm pt-2">
+                            <div class="text-slate-600 font-bold text-xs text-center mb-2">スタートする レベル をえらんでね</div>
+                            <div class="grid grid-cols-5 gap-1.5 mb-4" id="levelSelectContainer"></div>
+                            <button onclick="startGame(false)" class="w-full py-3 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-black text-xl rounded-xl shadow-[0_4px_0_0_#be123c] btn-press">
+                                ゲームスタート！ ✨
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 2. ゲームプレイ画面 -->
+                    <div id="screenGame" class="hidden absolute inset-0 bg-white rounded-2xl p-2 shadow-xl border-4 border-amber-300 flex flex-col gap-2">
                         
-                        <!-- 巨大表示用 五線譜コンテナ -->
-                        <div class="flex-grow relative bg-amber-50/60 rounded-2xl p-2 border-2 border-amber-200 flex flex-col items-center justify-center overflow-hidden h-full">
-                            <div id="staffContainer" class="w-full h-full flex items-center justify-center"></div>
-
-                            <!-- 隠れるカーテン -->
-                            <div id="curtainOverlay" class="curtain-overlay absolute inset-0 bg-amber-100/95 backdrop-blur-sm flex flex-col items-center justify-center opacity-0 pointer-events-none">
-                                <div class="text-5xl animate-bounce-short">❓</div>
-                                <p class="text-amber-900 font-black text-lg mt-2">おぼえてるかな？</p>
+                        <div class="flex justify-between items-center bg-amber-100/70 p-2 rounded-xl border-2 border-amber-200 shrink-0">
+                            <div class="flex items-center gap-2">
+                                <span id="currentLevelBadge" class="bg-pink-500 text-white font-black px-2 py-1 rounded-lg text-xs shadow">レベル 1</span>
                             </div>
-
-                            <!-- 正誤判定ポップアップ -->
-                            <div id="feedbackOverlay" class="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-200 scale-50 z-10">
-                                <div id="feedbackCircle" class="w-20 h-20 sm:w-28 sm:h-28 rounded-full flex items-center justify-center text-white text-5xl sm:text-6xl font-black shadow-2xl"></div>
+                            <div class="flex-grow mx-3 h-2.5 bg-white rounded-full overflow-hidden border border-amber-200 max-w-xs">
+                                <div id="timerProgressBar" class="bg-emerald-400 h-full w-full"></div>
                             </div>
-                        </div>
-
-                        <!-- 回答ボタン (2段構成) -->
-                        <div class="shrink-0 pb-1">
-                            <div class="text-center text-[10px] sm:text-xs font-bold text-slate-500 mb-1">正しい けいめい（ドレミ）をえらんでね</div>
-                            <div class="grid grid-cols-4 gap-1.5">
-                                <button onclick="submitAnswer('ド')" class="bg-red-500 hover:bg-red-600 text-white font-black py-1.5 sm:py-2 rounded-xl text-sm sm:text-base border-2 border-red-400 btn-press">ド</button>
-                                <button onclick="submitAnswer('レ')" class="bg-orange-500 hover:bg-orange-600 text-white font-black py-1.5 sm:py-2 rounded-xl text-sm sm:text-base border-2 border-orange-400 btn-press">レ</button>
-                                <button onclick="submitAnswer('ミ')" class="bg-yellow-500 hover:bg-yellow-600 text-white font-black py-1.5 sm:py-2 rounded-xl text-sm sm:text-base border-2 border-yellow-400 btn-press">ミ</button>
-                                <button onclick="submitAnswer('ファ')" class="bg-green-500 hover:bg-green-600 text-white font-black py-1.5 sm:py-2 rounded-xl text-sm sm:text-base border-2 border-green-400 btn-press">ファ</button>
-                            </div>
-                            <div class="grid grid-cols-3 gap-1.5 px-6 sm:px-10 mt-[20px]">
-                                <button onclick="submitAnswer('ソ')" class="bg-cyan-500 hover:bg-cyan-600 text-white font-black py-1.5 sm:py-2 rounded-xl text-sm sm:text-base border-2 border-cyan-400 btn-press">ソ</button>
-                                <button onclick="submitAnswer('ラ')" class="bg-blue-500 hover:bg-blue-600 text-white font-black py-1.5 sm:py-2 rounded-xl text-sm sm:text-base border-2 border-blue-400 btn-press">ラ</button>
-                                <button onclick="submitAnswer('シ')" class="bg-purple-500 hover:bg-purple-600 text-white font-black py-1.5 sm:py-2 rounded-xl text-sm sm:text-base border-2 border-purple-400 btn-press">シ</button>
+                            <div class="flex items-center gap-3 text-right">
+                                <div id="qIndexContainer">
+                                    <span class="text-[9px] text-slate-500 font-bold block leading-none">もんだい</span>
+                                    <span class="text-sm font-black text-slate-800"><span id="qIndexText" class="text-pink-600 text-lg">1</span>/10</span>
+                                </div>
+                                <div>
+                                    <span id="scoreLabel" class="text-[9px] text-slate-500 font-bold block leading-none">てんすう</span>
+                                    <span class="text-sm font-black text-amber-600"><span id="scoreText" class="text-lg">0</span><span id="scoreUnit">点</span></span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- 右ペイン：鍵盤表示 -->
-                    <div class="flex-1 bg-white border-2 border-slate-300 rounded-2xl p-2 sm:p-4 flex flex-col items-center justify-center shadow-inner min-w-0 w-1/2 relative">
-                        <!-- 鍵盤エリアを縦半分(h-1/2)に圧縮 -->
-                        <div class="w-full h-1/2 flex flex-col justify-center">
-                            <div class="text-center text-[10px] sm:text-xs font-bold text-slate-500 mb-1 sm:mb-2">こたえの ばしょ</div>
-                            <!-- A3からC6までの鍵盤コンテナ (直角化・丸みを削除) -->
-                            <div class="w-full flex-grow flex justify-between bg-slate-800 p-[1px] sm:p-0.5 gap-[1px] relative overflow-hidden">
-                                <!-- 17個の白鍵 (直角化・低いラとシを復元) -->
-                                <div id="key_A3" class="flex-1 bg-white shadow-sm flex items-end justify-center pb-1 transition-colors"><span class="text-[8px] sm:text-[10px] text-slate-400 font-bold">ラ</span></div>
-                                <div id="key_B3" class="flex-1 bg-white shadow-sm flex items-end justify-center pb-1 transition-colors"><span class="text-[8px] sm:text-[10px] text-slate-400 font-bold">シ</span></div>
-                                <div id="key_C4" class="flex-1 bg-white shadow-sm flex items-end justify-center pb-1 transition-colors"><span class="text-[8px] sm:text-[10px] text-slate-600 font-black">ド</span></div>
-                                <div id="key_D4" class="flex-1 bg-white shadow-sm flex items-end justify-center pb-1 transition-colors"><span class="text-[8px] sm:text-[10px] text-slate-400 font-bold">レ</span></div>
-                                <div id="key_E4" class="flex-1 bg-white shadow-sm flex items-end justify-center pb-1 transition-colors"><span class="text-[8px] sm:text-[10px] text-slate-400 font-bold">ミ</span></div>
-                                <div id="key_F4" class="flex-1 bg-white shadow-sm flex items-end justify-center pb-1 transition-colors"><span class="text-[8px] sm:text-[10px] text-slate-400 font-bold">ファ</span></div>
-                                <div id="key_G4" class="flex-1 bg-white shadow-sm flex items-end justify-center pb-1 transition-colors"><span class="text-[8px] sm:text-[10px] text-slate-400 font-bold">ソ</span></div>
-                                <div id="key_A4" class="flex-1 bg-white shadow-sm flex items-end justify-center pb-1 transition-colors"><span class="text-[8px] sm:text-[10px] text-slate-400 font-bold">ラ</span></div>
-                                <div id="key_B4" class="flex-1 bg-white shadow-sm flex items-end justify-center pb-1 transition-colors"><span class="text-[8px] sm:text-[10px] text-slate-400 font-bold">シ</span></div>
-                                <div id="key_C5" class="flex-1 bg-white shadow-sm flex items-end justify-center pb-1 transition-colors"><span class="text-[8px] sm:text-[10px] text-slate-600 font-black">ド</span></div>
-                                <div id="key_D5" class="flex-1 bg-white shadow-sm flex items-end justify-center pb-1 transition-colors"><span class="text-[8px] sm:text-[10px] text-slate-400 font-bold">レ</span></div>
-                                <div id="key_E5" class="flex-1 bg-white shadow-sm flex items-end justify-center pb-1 transition-colors"><span class="text-[8px] sm:text-[10px] text-slate-400 font-bold">ミ</span></div>
-                                <div id="key_F5" class="flex-1 bg-white shadow-sm flex items-end justify-center pb-1 transition-colors"><span class="text-[8px] sm:text-[10px] text-slate-400 font-bold">ファ</span></div>
-                                <div id="key_G5" class="flex-1 bg-white shadow-sm flex items-end justify-center pb-1 transition-colors"><span class="text-[8px] sm:text-[10px] text-slate-400 font-bold">ソ</span></div>
-                                <div id="key_A5" class="flex-1 bg-white shadow-sm flex items-end justify-center pb-1 transition-colors"><span class="text-[8px] sm:text-[10px] text-slate-400 font-bold">ラ</span></div>
-                                <div id="key_B5" class="flex-1 bg-white shadow-sm flex items-end justify-center pb-1 transition-colors"><span class="text-[8px] sm:text-[10px] text-slate-400 font-bold">シ</span></div>
-                                <div id="key_C6" class="flex-1 bg-white shadow-sm flex items-end justify-center pb-1 transition-colors"><span class="text-[8px] sm:text-[10px] text-slate-600 font-black">ド</span></div>
-                                
-                                <!-- 黒鍵の配置計算 (直角化) -->
-                                <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-md" style="left: calc((100%/17)*1 - 1.5%); width: 3%;"></div>
-                                <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-md" style="left: calc((100%/17)*3 - 1.5%); width: 3%;"></div>
-                                <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-md" style="left: calc((100%/17)*4 - 1.5%); width: 3%;"></div>
-                                <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-md" style="left: calc((100%/17)*6 - 1.5%); width: 3%;"></div>
-                                <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-md" style="left: calc((100%/17)*7 - 1.5%); width: 3%;"></div>
-                                <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-md" style="left: calc((100%/17)*8 - 1.5%); width: 3%;"></div>
-                                <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-md" style="left: calc((100%/17)*10 - 1.5%); width: 3%;"></div>
-                                <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-md" style="left: calc((100%/17)*11 - 1.5%); width: 3%;"></div>
-                                <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-md" style="left: calc((100%/17)*13 - 1.5%); width: 3%;"></div>
-                                <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-md" style="left: calc((100%/17)*14 - 1.5%); width: 3%;"></div>
-                                <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-md" style="left: calc((100%/17)*15 - 1.5%); width: 3%;"></div>
+                        <div class="flex-grow flex flex-row gap-2 min-h-0">
+                            <!-- 左ペイン：五線譜とボタン -->
+                            <div class="flex-1 flex flex-col gap-2 min-w-0 w-1/2">
+                                <!-- 五線譜コンテナ -->
+                                <div class="flex-grow relative bg-amber-50/60 rounded-xl p-2 border-2 border-amber-200 flex flex-col items-center justify-center overflow-hidden h-full">
+                                    <div id="staffContainer" class="w-full h-full flex items-center justify-center"></div>
+                                    <div id="curtainOverlay" class="curtain-overlay absolute inset-0 bg-amber-100/95 backdrop-blur-sm flex flex-col items-center justify-center opacity-0 pointer-events-none">
+                                        <div class="text-4xl animate-bounce-short">❓</div>
+                                        <p class="text-amber-900 font-black text-base mt-1">おぼえてるかな？</p>
+                                    </div>
+                                    <div id="feedbackOverlay" class="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-200 scale-50 z-10">
+                                        <div id="feedbackCircle" class="w-20 h-20 rounded-full flex items-center justify-center text-white text-5xl font-black shadow-xl"></div>
+                                    </div>
+                                </div>
+                                <div class="shrink-0 pb-1">
+                                    <div class="text-center text-[10px] font-bold text-slate-500 mb-1">正しい かいめいをえらんでね</div>
+                                    <div class="flex justify-center gap-1.5 mb-1.5">
+                                        <button onclick="submitAnswer('ド')" class="w-14 bg-red-500 hover:bg-red-600 text-white font-black py-1.5 rounded-lg text-sm border-2 border-red-400 btn-press">ド</button>
+                                        <button onclick="submitAnswer('レ')" class="w-14 bg-orange-500 hover:bg-orange-600 text-white font-black py-1.5 rounded-lg text-sm border-2 border-orange-400 btn-press">レ</button>
+                                        <button onclick="submitAnswer('ミ')" class="w-14 bg-yellow-500 hover:bg-yellow-600 text-white font-black py-1.5 rounded-lg text-sm border-2 border-yellow-400 btn-press">ミ</button>
+                                        <button onclick="submitAnswer('ファ')" class="w-14 bg-green-500 hover:bg-green-600 text-white font-black py-1.5 rounded-lg text-sm border-2 border-green-400 btn-press">ファ</button>
+                                    </div>
+                                    <div class="flex justify-center gap-1.5">
+                                        <button onclick="submitAnswer('ソ')" class="w-14 bg-cyan-500 hover:bg-cyan-600 text-white font-black py-1.5 rounded-lg text-sm border-2 border-cyan-400 btn-press">ソ</button>
+                                        <button onclick="submitAnswer('ラ')" class="w-14 bg-blue-500 hover:bg-blue-600 text-white font-black py-1.5 rounded-lg text-sm border-2 border-blue-400 btn-press">ラ</button>
+                                        <button onclick="submitAnswer('シ')" class="w-14 bg-purple-500 hover:bg-purple-600 text-white font-black py-1.5 rounded-lg text-sm border-2 border-purple-400 btn-press">シ</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex-1 bg-white border-2 border-slate-300 rounded-xl p-2 flex flex-col items-center justify-center shadow-inner min-w-0 w-1/2 relative">
+                                <div class="w-full h-[40%] flex flex-col justify-center">
+                                    <div class="w-full flex-grow flex justify-between bg-white border border-slate-800 divide-x divide-slate-800 relative overflow-hidden">
+                                        <!-- 17個の白鍵 (divide-x で均一な線を引く) -->
+                                        <div id="key_A3" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
+                                        <div id="key_B3" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
+                                        <div id="key_C4" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
+                                        <div id="key_D4" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
+                                        <div id="key_E4" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
+                                        <div id="key_F4" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
+                                        <div id="key_G4" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
+                                        <div id="key_A4" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
+                                        <div id="key_B4" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
+                                        <div id="key_C5" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
+                                        <div id="key_D5" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
+                                        <div id="key_E5" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
+                                        <div id="key_F5" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
+                                        <div id="key_G5" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
+                                        <div id="key_A5" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
+                                        <div id="key_B5" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
+                                        <div id="key_C6" class="flex-1 bg-white flex items-end justify-center transition-colors"></div>
+                                        
+                                        <!-- 黒鍵 -->
+                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*1 - 1.5%); width: 3%;"></div>
+                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*3 - 1.5%); width: 3%;"></div>
+                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*4 - 1.5%); width: 3%;"></div>
+                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*6 - 1.5%); width: 3%;"></div>
+                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*7 - 1.5%); width: 3%;"></div>
+                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*8 - 1.5%); width: 3%;"></div>
+                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*10 - 1.5%); width: 3%;"></div>
+                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*11 - 1.5%); width: 3%;"></div>
+                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*13 - 1.5%); width: 3%;"></div>
+                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*14 - 1.5%); width: 3%;"></div>
+                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc((100%/17)*15 - 1.5%); width: 3%;"></div>
+                                        <div class="absolute top-0 h-[55%] bg-slate-900 pointer-events-none shadow-sm" style="left: calc(100% - 1.5%); width: 3%;"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- 3. 結果画面 -->
-            <div id="screenResult" class="hidden absolute inset-0 bg-white rounded-3xl p-4 sm:p-6 shadow-xl border-4 border-amber-300 flex flex-col items-center justify-center space-y-4 sm:space-y-6 z-10">
-                <div class="text-center space-y-2">
-                    <div id="resultEmoji" class="text-5xl sm:text-6xl animate-bounce-short">🎉</div>
-                    <h2 id="resultTitle" class="text-2xl sm:text-4xl font-black text-amber-600">100てん まんてん！</h2>
-                    <p id="resultSub" class="text-sm sm:text-base text-slate-600 font-bold">すごい！ぜんぶ せいかいできたね！</p>
-                </div>
-                <div class="bg-amber-50 rounded-2xl p-4 sm:p-5 border-2 border-amber-200 w-full max-w-sm space-y-2 sm:space-y-3">
-                    <div class="flex justify-between items-center border-b border-amber-200 pb-2">
-                        <span class="font-bold text-slate-600">挑戦したレベル</span>
-                        <span id="resultLevelText" class="font-black text-pink-600 text-lg">レベル 1</span>
+                    <!-- 3. 結果画面 -->
+                    <div id="screenResult" class="hidden absolute inset-0 bg-white rounded-2xl p-4 shadow-xl border-4 border-amber-300 flex flex-col items-center justify-center space-y-3 z-10">
+                        <div class="text-center space-y-0.5">
+                            <div id="resultEmoji" class="text-4xl animate-bounce-short">🎉</div>
+                            <h2 id="resultTitle" class="text-2xl font-black text-amber-600">100てん まんてん！</h2>
+                            <p id="resultSub" class="text-xs text-slate-600 font-bold">すごい！ぜんぶ せいかいできたね！</p>
+                        </div>
+                        
+                        <div class="bg-amber-50 rounded-2xl py-2 px-4 border-2 border-amber-200 w-full max-w-sm space-y-1">
+                            <div class="flex justify-between items-center border-b border-amber-200 pb-1">
+                                <span class="font-bold text-xs text-slate-600">挑戦したレベル</span>
+                                <span id="resultLevelText" class="font-black text-pink-600 text-sm">レベル 1</span>
+                            </div>
+                            <div class="flex justify-between items-center pt-1">
+                                <span class="font-bold text-slate-700 text-sm">ごうけい</span>
+                                <span id="finalScoreText" class="font-black text-amber-600 text-xl">100 点</span>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2.5 w-full max-w-sm flex flex-col items-center">
+                            <!-- 隠しモード：スペシャルモードへ行くボタン -->
+                            <button id="specialModeBtn" onclick="startGame(true)" class="hidden w-full py-2 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-black text-base rounded-2xl shadow-[0_4px_0_0_#4338ca] btn-press">
+                                🔥 30びょう タイムアタックに ちょうせん！
+                            </button>
+                            <button id="nextLevelBtn" onclick="nextLevel()" class="hidden w-full py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-base rounded-2xl shadow-[0_4px_0_0_#047857] btn-press">
+                                つぎの レベルヘ すすむ！ 🚀
+                            </button>
+                            <button onclick="startGame(false)" class="w-full py-2 bg-amber-400 hover:bg-amber-500 text-amber-950 font-black text-base rounded-2xl shadow-[0_4px_0_0_#b45309] btn-press">
+                                もう一度 このレベルで あそぶ 🔄
+                            </button>
+                            <!-- 下部のはみ出しを防ぐための透明な1行 -->
+                            <div class="h-1 w-full opacity-0"></div>
+                        </div>
                     </div>
-                    <div class="flex justify-between items-center pt-1">
-                        <span class="font-bold text-slate-700 text-lg">ごうけい</span>
-                        <span id="finalScoreText" class="font-black text-amber-600 text-3xl">100 点</span>
-                    </div>
                 </div>
-                <div class="space-y-2 sm:space-y-3 w-full max-w-sm">
-                    <button id="nextLevelBtn" onclick="nextLevel()" class="w-full py-3 sm:py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-lg sm:text-xl rounded-2xl shadow-[0_6px_0_0_#047857] btn-press">
-                        つぎの レベルヘ すすむ！ 🚀
-                    </button>
-                    <button onclick="startGame()" class="w-full py-2 sm:py-3 bg-amber-400 hover:bg-amber-500 text-amber-950 font-black text-base sm:text-lg rounded-2xl shadow-[0_4px_0_0_#b45309] btn-press">
-                        もう一度 このレベルで あそぶ 🔄
-                    </button>
-                    <button onclick="showTitle()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs sm:text-sm rounded-xl transition">
-                        タイトルへ もどる
-                    </button>
-                </div>
-            </div>
-        </div>
-    </main>
+            </main>
 
-    <!-- フッター (下部余白内に配置) -->
-    <footer class="absolute bottom-4 w-full text-center text-xs text-amber-800/60 font-bold z-20">
-        小学生向け おんがく学習ゲーム &copy; 五線譜ドレミマスター
-    </footer>
+            <!-- フッター -->
+            <footer class="absolute bottom-1 w-full text-center text-[9px] text-amber-800/50 font-bold z-20 pointer-events-none">
+                &copy; 2026 Takuma Iwahara. Released under the MIT License.
+            </footer>
+
+        </div> <!-- /#gameApp -->
+    </div> <!-- /#gameWrapper -->
 
     <script>
         class SoundEngine {
@@ -263,6 +258,17 @@
             init() {
                 if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
                 if (this.ctx.state === 'suspended') this.ctx.resume();
+            }
+            playDummySound() {
+                // ブラウザの音声再生制限を解除するための無音再生
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                gain.gain.value = 0; // 完全無音
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.01);
             }
             playNote(noteName) {
                 if (this.isMuted) return;
@@ -290,7 +296,6 @@
                     const gain = this.ctx.createGain();
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(freq, now + delay);
-                    // 音量をさらに30%縮小 (0.09 -> 0.063)
                     gain.gain.setValueAtTime(0.063, now + delay);
                     gain.gain.exponentialRampToValueAtTime(0.001, now + delay + duration);
                     osc.connect(gain);
@@ -310,7 +315,6 @@
                     const gain = this.ctx.createGain();
                     osc.type = 'sawtooth';
                     osc.frequency.setValueAtTime(freq, now + delay);
-                    // 音量をさらに30%縮小 (0.1 -> 0.07)
                     gain.gain.setValueAtTime(0.07, now + delay);
                     gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.25);
                     osc.connect(gain);
@@ -377,8 +381,27 @@
         let isAnsweringAllowed = false;
         let timerInterval = null;
         let questionSequence = [];
+        let isSpecialMode = false;
+
+        function adjustScale() {
+            const wrapper = document.getElementById('gameWrapper');
+            const app = document.getElementById('gameApp');
+            if (!wrapper || !app) return;
+            
+            const wrapperWidth = wrapper.clientWidth;
+            const wrapperHeight = wrapper.clientHeight;
+            
+            const appWidth = 640;
+            const appHeight = 480;
+            
+            const scale = Math.min(wrapperWidth / appWidth, wrapperHeight / appHeight) * 0.98;
+            app.style.transform = `scale(${scale})`;
+        }
+
+        window.addEventListener('resize', adjustScale);
 
         window.addEventListener('DOMContentLoaded', () => {
+            adjustScale();
             buildLevelSelectButtons();
             showTitle();
         });
@@ -396,7 +419,7 @@
                 const btn = document.createElement('button');
                 btn.onclick = () => selectLevel(lvl);
                 btn.id = `lvlBtn_${lvl}`;
-                btn.innerHTML = `<span class="text-xs font-bold text-slate-400">Lv.${lvl}</span><span class="text-[10px] sm:text-xs">${LEVEL_CONFIGS[lvl].label}</span>`;
+                btn.innerHTML = `<span class="text-[10px] font-bold text-slate-400">Lv.${lvl}</span><span class="text-[9px]">${LEVEL_CONFIGS[lvl].label}</span>`;
                 container.appendChild(btn);
             }
             selectLevel(currentLevel);
@@ -419,31 +442,43 @@
             document.getElementById('screenTitle').classList.remove('hidden');
             document.getElementById('screenGame').classList.add('hidden');
             document.getElementById('screenResult').classList.add('hidden');
+            document.getElementById('headerTitleBtn').classList.add('hidden');
         }
 
-        function startGame() {
+        function startGame(startSpecial = false) {
+            sound.playDummySound(); // ゲーム開始時に無音を鳴らして音声をアンロック
+            isSpecialMode = startSpecial;
             questionIndex = 0;
             score = 0;
-            // 10問のランダム配列を生成 (直前と同じ音にならないように)
-            let validSeq = null;
-            const names = ['ド','レ','ミ','ファ','ソ','ラ','シ'];
-            for(let a=0; a<100; a++) {
-                let seq = [...names, ...names.slice(0,3)].sort(() => Math.random() - 0.5);
-                let dup = false;
-                for(let i=0; i<seq.length-1; i++) if(seq[i]===seq[i+1]) dup = true;
-                if(!dup) { validSeq = seq; break; }
-            }
-            if(!validSeq) validSeq = ['ド','レ','ミ','ファ','ソ','ラ','シ','ド','ミ','ソ'];
             
-            questionSequence = validSeq.map(n => {
-                const opts = NOTE_LIST.filter(note => note.name === n);
-                return opts[Math.floor(Math.random() * opts.length)];
-            });
-
             document.getElementById('screenTitle').classList.add('hidden');
             document.getElementById('screenResult').classList.add('hidden');
             document.getElementById('screenGame').classList.remove('hidden');
-            document.getElementById('currentLevelBadge').textContent = `レベル ${currentLevel}`;
+            document.getElementById('headerTitleBtn').classList.add('hidden'); // ゲーム中は非表示
+            
+            const badge = document.getElementById('currentLevelBadge');
+            const qIndexContainer = document.getElementById('qIndexContainer');
+            const scoreLabel = document.getElementById('scoreLabel');
+            const scoreUnit = document.getElementById('scoreUnit');
+
+            if (isSpecialMode) {
+                badge.textContent = 'タイムアタック';
+                badge.className = 'bg-purple-600 text-white font-black px-2 py-1 rounded-lg text-xs shadow';
+                qIndexContainer.classList.add('hidden');
+                scoreLabel.textContent = 'せいかい';
+                scoreUnit.textContent = '問';
+                startSpecialTimer(); // スペシャル用の30秒タイマー開始
+            } else {
+                badge.textContent = `レベル ${currentLevel}`;
+                badge.className = 'bg-pink-500 text-white font-black px-2 py-1 rounded-lg text-xs shadow';
+                qIndexContainer.classList.remove('hidden');
+                scoreLabel.textContent = 'てんすう';
+                scoreUnit.textContent = '点';
+                
+                // 17種類からランダムに10個を重複なしで選ぶ
+                const shuffledNotes = [...NOTE_LIST].sort(() => Math.random() - 0.5);
+                questionSequence = shuffledNotes.slice(0, 10);
+            }
 
             nextQuestion();
         }
@@ -454,16 +489,14 @@
             if (typeof Vex === 'undefined') return;
             const VF = Vex.Flow;
             
-            // 1. 論理サイズをさらに切り詰めて五線譜を限界までズームアップ
-            const LOGICAL_WIDTH = 65;
-            const LOGICAL_HEIGHT = 110;
+            const LOGICAL_WIDTH = 120;
+            const LOGICAL_HEIGHT = 160;
             
             const renderer = new VF.Renderer(container, VF.Renderer.Backends.SVG);
             renderer.resize(LOGICAL_WIDTH, LOGICAL_HEIGHT);
             const context = renderer.getContext();
 
-            // 2. 五線譜を上寄りに配置 (Y座標を15に上げて上へ移動、幅も調整)
-            const stave = new VF.Stave(-5, 15, 75);
+            const stave = new VF.Stave(5, 15, 110);
             stave.addClef("treble");
             stave.setContext(context).draw();
 
@@ -476,44 +509,41 @@
 
             const voice = new VF.Voice({ num_beats: 1, beat_value: 4 });
             voice.addTickable(staveNote);
-            new VF.Formatter().joinVoices([voice]).format([voice], 35);
+            new VF.Formatter().joinVoices([voice]).format([voice], 40);
             voice.draw(context, stave);
 
-            // 3. SVG要素の viewBox を使って、コンテナいっぱいに見切れなく最大化する
             const svg = container.querySelector('svg');
             if (svg) {
-                // 論理サイズの領域だけを切り取る
                 svg.setAttribute('viewBox', `0 0 ${LOGICAL_WIDTH} ${LOGICAL_HEIGHT}`);
                 svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-                
-                // CSSクラスによってコンテナの100%のサイズになるように強制
-                svg.removeAttribute('width');
-                svg.removeAttribute('height');
                 svg.style.width = '100%';
                 svg.style.height = '100%';
-                
-                // クリッピングを無効化し、万が一のはみ出しも許容する
                 svg.style.overflow = 'visible';
-                
-                // ご要望に合わせてさらに上へシフトさせる (-25px -> -35px)
-                svg.style.transform = 'translateY(-35px)';
+                svg.style.transform = 'scale(1.5)';
+                svg.style.transformOrigin = 'center center';
             }
         }
 
         function nextQuestion() {
-            questionIndex++;
-            if (questionIndex > 10) { endGame(); return; }
+            if (!isSpecialMode) {
+                questionIndex++;
+                if (questionIndex > 10) { endGame(); return; }
+                document.getElementById('qIndexText').textContent = questionIndex;
+                currentNote = questionSequence[questionIndex - 1];
+            } else {
+                // スペシャルモード：完全にランダムな音符を出し続ける
+                currentNote = NOTE_LIST[Math.floor(Math.random() * NOTE_LIST.length)];
+            }
 
-            document.getElementById('qIndexText').textContent = questionIndex;
             document.getElementById('scoreText').textContent = score;
             document.getElementById('curtainOverlay').classList.add('opacity-0', 'pointer-events-none');
             document.getElementById('feedbackOverlay').classList.add('opacity-0', 'scale-50');
             document.querySelectorAll('.key-highlight').forEach(el => el.classList.remove('key-highlight'));
 
-            currentNote = questionSequence[questionIndex - 1];
             drawStaffAndNote(currentNote);
             isAnsweringAllowed = true;
-            startTimer();
+            
+            if (!isSpecialMode) startTimer();
         }
 
         function startTimer() {
@@ -545,15 +575,35 @@
             }, 50);
         }
 
+        function startSpecialTimer() {
+            clearInterval(timerInterval);
+            const bar = document.getElementById('timerProgressBar');
+            const totalMs = 30 * 1000; // 30秒
+            const start = Date.now();
+            bar.className = 'bg-purple-400 h-full w-full';
+
+            timerInterval = setInterval(() => {
+                const remaining = Math.max(0, totalMs - (Date.now() - start));
+                const pct = (remaining / totalMs) * 100;
+                bar.style.width = `${pct}%`;
+                if (pct < 30) bar.className = 'bg-rose-500 h-full w-full';
+                else if (pct < 60) bar.className = 'bg-amber-400 h-full w-full';
+
+                if (remaining <= 0) {
+                    clearInterval(timerInterval);
+                    isAnsweringAllowed = false;
+                    endGame();
+                }
+            }, 50);
+        }
+
         function submitAnswer(selectedName) {
             if (!isAnsweringAllowed) return;
-            clearInterval(timerInterval);
+            if (!isSpecialMode) clearInterval(timerInterval); // スペシャルモードの時はタイマーを止めない
             isAnsweringAllowed = false;
 
-            // 押した瞬間に音を鳴らす
             sound.playNote(currentNote.pitchName);
             
-            // 0.3秒(300ms)遅らせて判定・UI更新を行う
             setTimeout(() => {
                 const isCorrect = (selectedName === currentNote.name);
                 const fbOverlay = document.getElementById('feedbackOverlay');
@@ -565,59 +615,87 @@
                 }
 
                 if (isCorrect) {
-                    score += 10;
+                    score += isSpecialMode ? 1 : 10;
                     sound.playCorrect();
                     fbCircle.textContent = '◯';
-                    fbCircle.className = 'w-24 h-24 sm:w-32 sm:h-32 rounded-full flex items-center justify-center text-white text-5xl sm:text-6xl font-black shadow-2xl bg-emerald-500/90 border-4 border-white animate-bounce-short';
+                    fbCircle.className = 'w-20 h-20 rounded-full flex items-center justify-center text-white text-5xl font-black shadow-xl bg-emerald-500/90 border-4 border-white animate-bounce-short';
                 } else {
                     sound.playWrong();
                     fbCircle.textContent = '✕';
-                    fbCircle.className = 'w-24 h-24 sm:w-32 sm:h-32 rounded-full flex items-center justify-center text-white text-5xl sm:text-6xl font-black shadow-2xl bg-rose-500/90 border-4 border-white';
+                    fbCircle.className = 'w-20 h-20 rounded-full flex items-center justify-center text-white text-5xl font-black shadow-xl bg-rose-500/90 border-4 border-white';
                 }
+
+                document.getElementById('scoreText').textContent = score;
 
                 fbOverlay.classList.remove('opacity-0', 'scale-50');
                 fbOverlay.classList.add('opacity-100', 'scale-100');
 
-                // さらに0.7秒後に次の問題へ
                 setTimeout(() => {
                     fbOverlay.classList.remove('opacity-100', 'scale-100');
                     fbOverlay.classList.add('opacity-0', 'scale-50');
-                    setTimeout(() => nextQuestion(), 200);
-                }, 700);
+                    // スペシャルモードで時間切れになっていなければ次へ
+                    if (isSpecialMode && !isAnsweringAllowed && timerInterval) {
+                       setTimeout(() => nextQuestion(), 100);
+                    } else if (!isSpecialMode) {
+                       setTimeout(() => nextQuestion(), 200);
+                    }
+                }, 500); // テンポ良くするためにフィードバック時間を短縮
 
-            }, 300);
+            }, 250);
         }
 
         function endGame() {
             clearInterval(timerInterval);
             document.getElementById('screenGame').classList.add('hidden');
             document.getElementById('screenResult').classList.remove('hidden');
-            document.getElementById('resultLevelText').textContent = `レベル ${currentLevel}`;
-            document.getElementById('finalScoreText').textContent = `${score} 点`;
+            document.getElementById('headerTitleBtn').classList.remove('hidden'); // 結果画面でホームボタンを表示
 
             const emojiEl = document.getElementById('resultEmoji');
             const titleEl = document.getElementById('resultTitle');
             const subEl = document.getElementById('resultSub');
             const nextBtn = document.getElementById('nextLevelBtn');
+            const specialBtn = document.getElementById('specialModeBtn');
 
-            if (score === 100) {
-                emojiEl.textContent = '🎉';
-                titleEl.textContent = '100てん まんてん！';
-                subEl.textContent = 'すごい！ぜんぶ せいかいできたね！';
-                sound.playFanfare();
-                if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-                nextBtn.classList.toggle('hidden', currentLevel >= 5);
+            // ボタンは一旦隠す
+            nextBtn.classList.add('hidden');
+            specialBtn.classList.add('hidden');
+
+            if (isSpecialMode) {
+                document.getElementById('resultLevelText').textContent = 'スペシャルモード';
+                document.getElementById('finalScoreText').textContent = `${score} 問`;
+                
+                emojiEl.textContent = score >= 15 ? '🔥' : '👍';
+                titleEl.textContent = 'タイムアップ！';
+                subEl.textContent = `${score}問も せいかい できたね！すごい！`;
+                if (score >= 15) sound.playFanfare();
+                
             } else {
-                emojiEl.textContent = score >= 70 ? '👏' : '🐥';
-                titleEl.textContent = `${score}てん！`;
-                subEl.textContent = score >= 70 ? 'あとすこしで まんてんだよ！' : 'もういちど たしかめて みよう！';
-                nextBtn.classList.add('hidden');
+                document.getElementById('resultLevelText').textContent = `レベル ${currentLevel}`;
+                document.getElementById('finalScoreText').textContent = `${score} 点`;
+                
+                if (score === 100) {
+                    emojiEl.textContent = '🎉';
+                    titleEl.textContent = '100てん まんてん！';
+                    subEl.textContent = 'すごい！ぜんぶ せいかいできたね！';
+                    sound.playFanfare();
+                    if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                    
+                    if (currentLevel < 5) {
+                        nextBtn.classList.remove('hidden');
+                    } else if (currentLevel === 5) {
+                        specialBtn.classList.remove('hidden'); // レベル5満点クリアでスペシャルモード出現！
+                    }
+                } else {
+                    emojiEl.textContent = score >= 70 ? '👏' : '🐥';
+                    titleEl.textContent = `${score}てん！`;
+                    subEl.textContent = score >= 70 ? 'あとすこしで まんてんだよ！' : 'もういちど たしかめて みよう！';
+                }
             }
         }
 
         function nextLevel() {
             if (currentLevel < 5) selectLevel(currentLevel + 1);
-            startGame();
+            startGame(false);
         }
     </script>
 </body>
